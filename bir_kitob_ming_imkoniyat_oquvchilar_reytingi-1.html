@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bir kitob — ming imkoniyat</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#071b49,#174ea6);color:#fff;min-height:100vh}
+.wrap{max-width:1000px;margin:auto;padding:24px}.card{background:#fff;color:#172033;border-radius:18px;padding:24px;margin:18px 0;box-shadow:0 10px 35px #0004}
+h1{font-size:30px;margin:10px 0}.sub{opacity:.9}.btn{border:0;border-radius:12px;padding:13px 20px;font-size:16px;font-weight:700;cursor:pointer;background:#e53935;color:#fff;margin:6px}.btn2{background:#1769e0}.btn3{background:#16a05d}
+input,select,textarea{width:100%;padding:12px;margin:7px 0;border:1px solid #ccd3df;border-radius:9px;font-size:15px}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}.navbtn{background:#ffffff22;border:1px solid #ffffff44;color:#fff;padding:10px 14px;border-radius:10px;cursor:pointer}
+.hide{display:none}.question{font-size:20px;font-weight:700;margin-bottom:15px}.opt{display:block;width:100%;text-align:left;padding:13px;margin:8px 0;border:2px solid #d8dee8;background:#fff;border-radius:10px;cursor:pointer}.opt:hover{background:#eef5ff}.selected{border-color:#1769e0;background:#e9f2ff}.correct{background:#d8f5e5!important;border-color:#16a05d!important}.wrong{background:#ffe0e0!important;border-color:#e53935!important}
+.score{font-size:42px;font-weight:800;color:#1769e0;text-align:center}.small{color:#667085;font-size:13px}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:650px){.row{grid-template-columns:1fr}.wrap{padding:12px}h1{font-size:24px}}
+table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left}th{background:#eef3f9}
+.logo{font-size:15px;font-weight:800;letter-spacing:.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="logo">📚 MAKTAB BELLASHUVI</div>
+<h1>Bir kitob — ming imkoniyat</h1>
+<div class="sub">5–11-sinf o‘quvchilari o‘rtasida individual kitobxonlik bellashuvi</div>
+
+<nav>
+<button class="navbtn" onclick="show('home')">🏠 Bosh sahifa</button>
+<button class="navbtn" onclick="show('quiz')">🧠 Bellashuv</button>
+<button class="navbtn" onclick="show('admin')">🔐 Admin panel</button>
+</nav>
+
+<section id="home" class="card">
+<h2>📖 Bellashuvga xush kelibsiz!</h2>
+<p>Har bir o‘quvchi ism-familiyasi va sinfini kiritib, testda individual qatnashadi. Natijalar o‘quvchilar bo‘yicha reytingda hisoblanadi.</p>
+<button class="btn btn2" onclick="show('quiz')">Bellashuvni boshlash</button>
+<button class="btn btn3" onclick="show('admin')">Admin panel</button>
+</section>
+
+<section id="quiz" class="card hide">
+<div id="studentForm">
+<h2>O‘quvchi ma’lumotlari</h2>
+<input id="name" placeholder="Ism-familiya">
+<select id="cls">
+<option value="">Sinfni tanlang</option><option>5-sinf</option><option>6-sinf</option><option>7-sinf</option><option>8-sinf</option><option>9-sinf</option><option>10-sinf</option><option>11-sinf</option>
+</select>
+<button class="btn btn2" onclick="startQuiz()">Testni boshlash</button>
+</div>
+<div id="quizBox" class="hide">
+<div id="qnum" class="small"></div><div id="qtext" class="question"></div><div id="opts"></div>
+<button class="btn btn2" onclick="nextQ()">Keyingi savol</button>
+</div>
+<div id="result" class="hide">
+<h2 style="text-align:center">Natijangiz</h2>
+<div id="score" class="score"></div><p id="resultText" style="text-align:center"></p>
+<button class="btn btn3" onclick="show('home')">Bosh sahifaga</button>
+</div>
+</section>
+
+<section id="admin" class="card hide">
+<h2>🔐 Admin panel</h2>
+<div id="login">
+<input id="pass" type="password" placeholder="Admin paroli">
+<button class="btn btn2" onclick="login()">Kirish</button>
+<p class="small">Demo parol: 12345</p>
+</div>
+<div id="panel" class="hide">
+<div class="row">
+<div><h3>➕ Savol qo‘shish</h3>
+<textarea id="newQ" rows="3" placeholder="Savol matni"></textarea>
+<input id="a" placeholder="A javob"><input id="b" placeholder="B javob"><input id="c" placeholder="C javob"><input id="d" placeholder="D javob">
+<select id="correct"><option value="0">To‘g‘ri javob: A</option><option value="1">To‘g‘ri javob: B</option><option value="2">To‘g‘ri javob: C</option><option value="3">To‘g‘ri javob: D</option></select>
+<button class="btn btn3" onclick="addQ()">Savolni saqlash</button>
+</div>
+<div><h3>📊 Natijalar</h3><div id="results"></div><button class="btn" onclick="clearResults()">Natijalarni tozalash</button></div>
+</div>
+<h3>📝 Savollar ro‘yxati</h3><div id="questions"></div>
+</div>
+</section>
+</div>
+
+<script>
+const defaultQs=[
+{q:"O‘zbek adabiyotida “Xamsa” asarini kim yaratgan?",o:["Alisher Navoiy","Abdulla Qodiriy","Cho‘lpon","Oybek"],c:0},
+{q:"“O‘tkan kunlar” romanining muallifi kim?",o:["Cho‘lpon","Abdulla Qodiriy","Oybek","Hamza"],c:1},
+{q:"Kitob o‘qishning muhim foydalaridan biri qaysi?",o:["Vaqtni behuda sarflash","Lug‘at boyligini oshirish","Uyquni kamaytirish","Diqqatni yo‘qotish"],c:1},
+{q:"Alisher Navoiyning tug‘ilgan shahri qaysi?",o:["Samarqand","Buxoro","Hirot","Toshkent"],c:2},
+{q:"“Shum bola” asarining muallifi kim?",o:["G‘afur G‘ulom","Oybek","Cho‘lpon","Hamza"],c:0},
+{q:"Kitobxonlik bellashuvining asosiy maqsadi nima?",o:["Faqat g‘olib bo‘lish","O‘qishga qiziqishni oshirish","Darsni bekor qilish","Faqat sovrin olish"],c:1},
+{q:"“Mehrobdan chayon” asari kimga tegishli?",o:["Abdulla Qodiriy","Oybek","G‘afur G‘ulom","Erkin Vohidov"],c:0},
+{q:"She’riy asar yozuvchi ijodkor qanday ataladi?",o:["Shoir","Rassom","Me’mor","Muhandis"],c:0},
+{q:"Kitobni muhokama qilishda eng muhim ko‘nikmalardan biri qaysi?",o:["Fikrni asoslash","Savol bermaslik","Faqat yodlash","Suhbatdan qochish"],c:0},
+{q:"“O‘zbekiston” she’rini mashhur tarzda kuylagan ijodkorlardan biri kim?",o:["Muhammad Yusuf","Alisher Navoiy","Abdulla Qodiriy","Zulfiya"],c:0}
+];
+let qs=JSON.parse(localStorage.getItem('bk_questions')||'null')||defaultQs;
+let results=JSON.parse(localStorage.getItem('bk_results')||'[]');
+let idx=0,score=0,student="",cls="",chosen=null;
+
+function show(id){['home','quiz','admin'].forEach(x=>document.getElementById(x).classList.add('hide'));document.getElementById(id).classList.remove('hide');if(id==='admin')renderAdmin();}
+function startQuiz(){student=document.getElementById('name').value.trim();cls=document.getElementById('cls').value;if(!student||!cls){alert("Ism-familiya va sinfni kiriting.");return}idx=0;score=0;document.getElementById('studentForm').classList.add('hide');document.getElementById('quizBox').classList.remove('hide');renderQ();}
+function renderQ(){chosen=null;let x=qs[idx];document.getElementById('qnum').textContent=`${idx+1} / ${qs.length}-savol`;document.getElementById('qtext').textContent=x.q;let box=document.getElementById('opts');box.innerHTML='';x.o.forEach((v,i)=>{let b=document.createElement('button');b.className='opt';b.textContent=String.fromCharCode(65+i)+") "+v;b.onclick=()=>{chosen=i;document.querySelectorAll('.opt').forEach(z=>z.classList.remove('selected'));b.classList.add('selected')};box.appendChild(b)})}
+function nextQ(){if(chosen===null){alert("Javobni tanlang.");return}if(chosen===qs[idx].c)score++;idx++;if(idx<qs.length)renderQ();else finish();}
+function finish(){document.getElementById('quizBox').classList.add('hide');document.getElementById('result').classList.remove('hide');let pct=Math.round(score/qs.length*100);document.getElementById('score').textContent=`${score} / ${qs.length}`;document.getElementById('resultText').textContent=`${student} — ${cls}. Natija: ${pct}%.`;results.push({student,cls,score,total:qs.length,date:new Date().toLocaleString('uz-UZ')});localStorage.setItem('bk_results',JSON.stringify(results));}
+function login(){if(document.getElementById('pass').value==='12345'){document.getElementById('login').classList.add('hide');document.getElementById('panel').classList.remove('hide');renderAdmin()}else alert("Parol noto‘g‘ri.");}
+function addQ(){let q=document.getElementById('newQ').value.trim(),o=['a','b','c','d'].map(id=>document.getElementById(id).value.trim()),c=+document.getElementById('correct').value;if(!q||o.some(x=>!x)){alert("Barcha maydonlarni to‘ldiring.");return}qs.push({q,o,c});localStorage.setItem('bk_questions',JSON.stringify(qs));['newQ','a','b','c','d'].forEach(id=>document.getElementById(id).value='');renderAdmin();alert("Savol saqlandi.");}
+function renderAdmin(){document.getElementById('questions').innerHTML=qs.map((x,i)=>`<div style="padding:9px;border-bottom:1px solid #ddd"><b>${i+1}. ${x.q}</b><br><span class="small">To‘g‘ri javob: ${String.fromCharCode(65+x.c)}</span></div>`).join('');document.getElementById('results').innerHTML=results.length?`<table><tr><th>O‘quvchi</th><th>Sinf</th><th>Ball</th><th>Sana</th></tr>${results.slice().reverse().map(r=>`<tr><td>${r.student}</td><td>${r.cls}</td><td>${r.score}/${r.total}</td><td>${r.date}</td></tr>`).join('')}</table>`:'<p>Hozircha natija yo‘q.</p>'}
+function clearResults(){if(confirm("Barcha natijalar o‘chirilsinmi?")){results=[];localStorage.setItem('bk_results','[]');renderAdmin()}}
+</script>
+
+<script>
+/* 30-question competition bank */
+window.q30=[
+["“O‘tkan kunlar” romanining muallifi kim?",["Abdulla Qodiriy","Cho‘lpon","Oybek","G‘afur G‘ulom"],0],
+["“Shum bola” asarini kim yozgan?",["Oybek","G‘afur G‘ulom","Abdulla Qodiriy","Hamza"],1],
+["Alisher Navoiyning mashhur besh dostondan iborat turkumi qanday ataladi?",["Devon","Xamsa","Majolis","Lison"],1],
+["“Xamsa” so‘zining ma’nosi nima?",["Uchlik","To‘rtlik","Beshlik","Oltlik"],2],
+["Kitobxonlikning asosiy foydalaridan biri qaysi?",["Lug‘at boyligini oshirish","Diqqatni kamaytirish","Vaqtni bekor o‘tkazish","Xotirani susaytirish"],0],
+["She’r yozuvchi ijodkor kim?",["Shoir","Rassom","Me’mor","Tarjimon"],0],
+["Nasriy katta hajmli badiiy asar nima?",["Roman","Maqol","Topishmoq","Maqolcha"],0],
+["“Mehrobdan chayon” asarining muallifi kim?",["Abdulla Qodiriy","Oybek","Cho‘lpon","Zulfiya"],0],
+["“Kecha va kunduz” romanini kim yozgan?",["Cho‘lpon","Oybek","G‘afur G‘ulom","Hamza"],0],
+["Alisher Navoiy qaysi asrda yashagan?",["XIV asr","XV asr","XVI asr","XVII asr"],1],
+["“Boburnoma” asarining muallifi kim?",["Zahiriddin Muhammad Bobur","Alisher Navoiy","Amir Temur","Ulug‘bek"],0],
+["Kitobni tez va mazmunli o‘qishda nima muhim?",["Diqqat va tushunish","Faqat tezlik","Faqat yodlash","Shoshilish"],0],
+["Badiiy asardagi voqealarda ishtirok etuvchi shaxs nima deyiladi?",["Qahramon","Muallif","Noshir","Muharrir"],0],
+["Asarning asosiy g‘oyasi nimani anglatadi?",["Muallif ilgari surgan asosiy fikrni","Kitob narxini","Sahifalar sonini","Muallif yoshini"],0],
+["“Hibat ul-haqoyiq” asari qaysi adibga mansub?",["Ahmad Yugnakiy","Alisher Navoiy","Bobur","Furqat"],0],
+["“Qutadg‘u bilig” asarining muallifi kim?",["Yusuf Xos Hojib","Mahmud Koshg‘ariy","Ahmad Yassaviy","Beruniy"],0],
+["“Devonu lug‘otit turk” asarini kim yaratgan?",["Mahmud Koshg‘ariy","Yusuf Xos Hojib","Navoiy","Bobur"],0],
+["Kitobning mazmunini qisqa bayon qilish nima?",["Xulosa","Sarlavha","Izoh","Reja"],0],
+["Asarning nomi qanday ataladi?",["Sarlavha","Qahramon","Syujet","Bob"],0],
+["Voqealarning izchil rivoji nima deyiladi?",["Syujet","Janr","Sarlavha","Qofiya"],0],
+["She’r misralarining ohangdosh tugashi nima?",["Qofiya","Syujet","Obraz","Bob"],0],
+["Kitob o‘qish uchun eng foydali odat qaysi?",["Muntazam o‘qish","Faqat imtihon oldidan o‘qish","Kitobni yopib qo‘yish","Faqat rasmlarni ko‘rish"],0],
+["O‘zbek tilidagi ilk romanlardan biri qaysi?",["O‘tkan kunlar","Shum bola","Boburnoma","Xamsa"],0],
+["“O‘zbek xalqining buyuk shoiri” sifatida mashhur ijodkorlardan biri kim?",["Alisher Navoiy","Aristotel","Shekspir","Dante"],0],
+["“Shaytanat” asarining muallifi kim?",["Tohir Malik","O‘tkir Hoshimov","Pirimqul Qodirov","Said Ahmad"],0],
+["“Dunyoning ishlari” asari muallifi kim?",["O‘tkir Hoshimov","Tohir Malik","Abdulla Qahhor","Oybek"],0],
+["“Ulug‘bek xazinasi” romanini kim yozgan?",["Odil Yoqubov","Pirimqul Qodirov","O‘tkir Hoshimov","Said Ahmad"],1],
+["Kitobxonlik bellashuvida jamoaviy ishlashning foydasi nima?",["Fikr almashish va hamkorlik","Savollardan qochish","Vazifani bajarmaslik","Faqat bitta o‘quvchi ishlashi"],0],
+["Test yakunida natijani hisoblashning eng adolatli usuli qaysi?",["To‘g‘ri javoblar sonini hisoblash","Ismga qarab baholash","Sinfga qarab ball berish","Tasodifiy baholash"],0],
+["“Bir kitob — ming imkoniyat” loyihasining asosiy maqsadi nima?",["Kitobxonlik madaniyatini oshirish","Faqat sovrin olish","Darslarni bekor qilish","Faqat test ishlash"],0]
+].map(x=>({q:x[0],o:x[1],c:x[2]}));
+
+qs=window.q30;
+localStorage.setItem('bk_questions',JSON.stringify(qs));
+
+function classLeaderboard(){
+  const box=document.getElementById('results');
+  if(!box)return;
+  if(!results.length){box.innerHTML='<p>Hozircha natija yo‘q.</p>';return}
+  const rows=results.slice().sort((a,b)=>(b.score/b.total)-(a.score/a.total)||b.score-a.score);
+  box.innerHTML='<h4>🏆 O‘quvchilar reytingi</h4><table><tr><th>O‘rin</th><th>O‘quvchi</th><th>Sinf</th><th>Ball</th><th>Foiz</th><th>Sana</th></tr>'+
+  rows.map((r,i)=>`<tr><td>${i+1}</td><td>${r.student}</td><td>${r.cls}</td><td>${r.score}/${r.total}</td><td>${Math.round(r.score/r.total*100)}%</td><td>${r.date}</td></tr>`).join('')+
+  '</table>';
+}
+const oldFinish=finish;
+finish=function(){
+ oldFinish();
+ localStorage.setItem('bk_results',JSON.stringify(results));
+};
+const oldRenderAdmin=renderAdmin;
+renderAdmin=function(){
+ oldRenderAdmin();
+ classLeaderboard();
+};
+</script>
+
+</body>
+</html>
